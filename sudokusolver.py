@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import re
 import numpy as np
 
 class Solver(object):
@@ -72,7 +73,7 @@ class Solver(object):
         return True
 
     def find_cell_with_one_possibility(self):
-        res = np.where(np.sum(self.possible_table, axis=2) == 1)
+        res = np.where(self.possible_table.sum(axis=2) == 1)
         if len(res[0]) > 0:
             y = res[0][0]
             x = res[1][0]
@@ -81,7 +82,7 @@ class Solver(object):
         return -1, -1, -1
 
     def find_cell_with_n_possibilities(self, num_possibilities):
-        res = np.where(np.sum(self.possible_table, axis=2) == num_possibilities)
+        res = np.where(self.possible_table.sum(axis=2) == num_possibilities)
         if len(res[0]) > 0:
             y = res[0][0]
             x = res[1][0]
@@ -90,7 +91,7 @@ class Solver(object):
         return -1, -1, -1
 
     def find_one_possible_in_col(self):
-        res = np.where(np.sum(self.possible_table, axis=1) == 1)
+        res = np.where(self.possible_table.sum(axis=1) == 1)
         if len(res[0]) > 0:
             y = res[0][0]
             val_idx = res[1][0]
@@ -99,7 +100,7 @@ class Solver(object):
         return -1, -1, -1
 
     def find_one_possible_in_row(self):
-        res = np.where(np.sum(self.possible_table, axis=0) == 1)
+        res = np.where(self.possible_table.sum(axis=0) == 1)
         if len(res[0]) > 0:
             x = res[0][0]
             val_idx = res[1][0]
@@ -184,8 +185,11 @@ def parse_sudoku_file(sudoku_file):
     array = []
     with open(sudoku_file, 'r') as input_file:
         for line in input_file:
-            str_row = line.split()
-            row = [int(elem) for elem in str_row]
+            line = line.replace('|', '').replace('-', '').replace('+', '').replace(' ', '').strip()
+            line = re.sub(r'\D', '0', line) # replace non numbers with 0
+            if not line:
+                continue
+            row = [int(char) for char in line]
             if len(row) != 9:
                 return None
             array.append(row)
