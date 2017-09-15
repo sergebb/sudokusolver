@@ -49,7 +49,7 @@ class Solver(object):
 
         if not self.is_solved():
             #Recursive test of possible values:
-            for num_possibilities in range(2, 9):
+            for num_possibilities in range(2, 10):
                 y, x, vals = self.find_cell_with_n_possibilities(num_possibilities)
 
                 if y >= 0:
