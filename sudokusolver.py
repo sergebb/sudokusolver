@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import sys
 import re
 import numpy as np
 
@@ -10,10 +11,12 @@ class Solver(object):
     table = None
     possible_table = None
     verbose = False
+    solution_count = 0
 
     def __init__(self, input_problem, verbose=False):
         self.verbose = verbose
         self.load_problem(input_problem)
+        self.solution_count = 0
 
     def load_problem(self, input_problem):
         if isinstance(input_problem, np.ndarray) and input_problem.ndim == 2 and \
@@ -24,7 +27,36 @@ class Solver(object):
     def get_result(self):
         return self.table
 
+    def.get_solution_count(self):
+        return self.solution_count
+
     def start(self):
+        self.fill_non_recursive()
+
+        if not self.is_solved():
+            #Recursive test of possible values:
+            for num_possibilities in range(2, 10):
+                y, x, vals = self.find_cell_with_n_possibilities(num_possibilities)
+
+                if y >= 0:
+                    solved_table_cache = None
+                    for val in vals:
+                        solved_table, new_solution_count = self.recursive_test_cell_possibility(y, x, val)
+                        # print y,x,val, new_solution_count
+                        if solved_table is not None:
+                            if solved_table_cache is None:
+                                solved_table_cache = solved_table
+                            self.solution_count += new_solution_count
+                            if self.solution_count >= 10:
+                                break
+                    if solved_table_cache is not None:
+                        self.table = solved_table_cache
+        else:
+            self.solution_count = 1
+
+        return self.solution_count
+
+    def fill_non_recursive(self):
         while True:
             y, x, val = self.find_cell_with_one_possibility()
 
@@ -44,20 +76,11 @@ class Solver(object):
             # We found something
             if self.verbose:
                 print 'X,Y = %d,%d <- %d' % (x+1, y+1, val)
-            self.table[y, x] = val
-            self.remove_possibility(y, x, val)
+            self.set_cell(y, x, val)
 
-        if not self.is_solved():
-            #Recursive test of possible values:
-            for num_possibilities in range(2, 10):
-                y, x, vals = self.find_cell_with_n_possibilities(num_possibilities)
-
-                if y >= 0:
-                    for val in vals:
-                        solved_table = self.recursive_test_cell_possibility(y, x, val)
-                        if solved_table is not None:
-                            self.table = solved_table
-                            break
+    def set_cell(self, new_y, new_x, new_val):
+        self.table[new_y, new_x] = new_val
+        self.remove_possibility(new_y, new_x, new_val)
 
     def is_solved(self):
         for i in range(9):
@@ -126,9 +149,9 @@ class Solver(object):
         new_solver = Solver(new_table)
         new_solver.start()
         if new_solver.is_solved():
-            return new_solver.get_result()
+            return new_solver.get_result(), new_solver.solution_count
         #We found nothing
-        return None
+        return None, 0
 
 
     def remove_possibility(self, y, x, value):
@@ -234,8 +257,16 @@ def main():
     solver = Solver(input_problem)
 
     # solver.test_solver()
-    solver.start()
-    print_puzzle(solver.get_result())
+    sol_count = solver.start()
+    if sol_count == 1:
+        sys.stderr.write('Puzzle have 1 solution\n')
+    elif sol_count < 10:
+        sys.stderr.write('Puzzle have %d solutions\n' % sol_count)
+    else:
+        sys.stderr.write('Puzzle have 10+ solutions\n')
+
+    if solver.is_solved():
+        print_puzzle(solver.get_result())
 
 if __name__ == '__main__':
     main()
