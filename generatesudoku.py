@@ -18,36 +18,28 @@ def main():
 
     puzzle = np.zeros(9*9, dtype=np.uint8).reshape(9, 9)
     solver = sudokusolver.Solver(puzzle)
+    solver.start()
 
     random.seed()
-
-    filled_cells = 30 - level*2
-
-    solver.table[1,1] = 1
-
-    while solver.get_solution_count() > 1:
-        new_x = random.randint(0, 8)
-        new_y = random.randint(0, 8)
-        if solver.table[new_y, new_x] != 0:
+    
+    remove_attempt_threshold = 100
+    remove_attempt = 0
+    while True:
+        remove_x = random.randint(0,8)
+        remove_y = random.randint(0,8)
+        remove_val = solver.get_result()[remove_y, remove_x]
+        if remove_val == 0:
             continue
-        new_val = random.choice(solver.get_possible_vals(new_y, new_x))
-        solver.table[new_y, new_x] = new_val
-        val = random.randint(1, 9)
-        # solver.set_cell(new_y, new_x, val)
-        solver.fill_non_recursive()  
+        solver.set_cell(remove_y, remove_x, 0)
+        solver.fill_possible_table()
+        n_sol = solver.count_solutions()
+        if n_sol > 1:
+            solver.set_cell(remove_y, remove_x, remove_val)
+            remove_attempt += 1
+            if remove_attempt >= remove_attempt_threshold:
+                break
 
-    # puzzle = solver.get_result() # Save current state
-    print 'Puzzle:'
     sudokusolver.print_puzzle(solver.get_result())
-    # solver.start()
-    # print 'First try:',solver.is_solved()
-
-
-    # solver = Solver(input_problem)
-
-    # solver.test_solver()
-    # solver.start()
-    # print_puzzle(solver.get_result())
 
 if __name__ == '__main__':
     main()

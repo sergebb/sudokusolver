@@ -6,6 +6,7 @@ import os
 import sys
 import re
 import numpy as np
+from random import shuffle
 
 class Solver(object):
     table = None
@@ -16,7 +17,7 @@ class Solver(object):
     def __init__(self, input_problem, verbose=False):
         self.verbose = verbose
         self.load_problem(input_problem)
-        self.solution_count = 0
+        self.solution_count = -1
 
     def load_problem(self, input_problem):
         if isinstance(input_problem, np.ndarray) and input_problem.ndim == 2 and \
@@ -27,27 +28,48 @@ class Solver(object):
     def get_result(self):
         return self.table
 
-    def.get_solution_count(self):
+    def count_solutions(self):
+        cached_table = self.table.copy()
+        self.fill_non_recursive()
+        if not self.is_solved():
+            self.solution_count = 0
+            #Recursive test of possible values:
+            for num_possibilities in range(2, 10):
+                y, x, vals = self.find_cell_with_n_possibilities(num_possibilities)
+
+                if y >= 0:
+                    for val in vals:
+                        _, new_solution_count = self.recursive_test_cell_possibility(y, x, val)
+                        if new_solution_count > 0:
+                            self.solution_count += new_solution_count
+                            if self.solution_count >= 5:
+                                break
+        else:
+            self.solution_count = 1
+
+        self.table = cached_table
+        self.fill_possible_table()
         return self.solution_count
 
     def start(self):
         self.fill_non_recursive()
 
         if not self.is_solved():
+            self.solution_count = 0
             #Recursive test of possible values:
             for num_possibilities in range(2, 10):
                 y, x, vals = self.find_cell_with_n_possibilities(num_possibilities)
 
                 if y >= 0:
                     solved_table_cache = None
+                    shuffle(vals) # for random generation
                     for val in vals:
                         solved_table, new_solution_count = self.recursive_test_cell_possibility(y, x, val)
-                        # print y,x,val, new_solution_count
                         if solved_table is not None:
                             if solved_table_cache is None:
                                 solved_table_cache = solved_table
                             self.solution_count += new_solution_count
-                            if self.solution_count >= 10:
+                            if self.solution_count >= 5:
                                 break
                     if solved_table_cache is not None:
                         self.table = solved_table_cache
