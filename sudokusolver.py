@@ -39,9 +39,9 @@ class Solver(object):
 
                 if y >= 0:
                     for val in vals:
-                        _, new_solution_count = self.recursive_test_cell_possibility(y, x, val)
-                        if new_solution_count > 0:
-                            self.solution_count += new_solution_count
+                        _, sol_cnt = self.recursive_test_cell_possibility(y, x, val)
+                        if sol_cnt > 0:
+                            self.solution_count += sol_cnt
                             if self.solution_count >= 5:
                                 break
         else:
@@ -64,11 +64,11 @@ class Solver(object):
                     solved_table_cache = None
                     shuffle(vals) # for random generation
                     for val in vals:
-                        solved_table, new_solution_count = self.recursive_test_cell_possibility(y, x, val)
-                        if solved_table is not None:
+                        solved_table, sol_cnt = self.recursive_test_cell_possibility(y, x, val)
+                        if sol_cnt > 0:
                             if solved_table_cache is None:
                                 solved_table_cache = solved_table
-                            self.solution_count += new_solution_count
+                            self.solution_count += sol_cnt
                             if self.solution_count >= 5:
                                 break
                     if solved_table_cache is not None:
