@@ -27,7 +27,7 @@ def main():
 
     remove_order = np.arange(9*9, dtype=np.int)
     random.shuffle(remove_order)
-    remove_order *= level
+    remove_order = np.hstack([remove_order]*level)
     for elem_num in remove_order:
         remove_x = elem_num % 9
         remove_y = elem_num // 9
