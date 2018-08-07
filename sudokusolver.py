@@ -97,7 +97,7 @@ class Solver(object):
 
             # We found something
             if self.verbose:
-                print 'X,Y = %d,%d <- %d' % (x+1, y+1, val)
+                print('X,Y = %d,%d <- %d' % (x+1, y+1, val))
             self.set_cell(y, x, val)
 
     def set_cell(self, new_y, new_x, new_val):
@@ -247,16 +247,16 @@ def parse_sudoku_file(sudoku_file):
 def print_puzzle(table):
     for y in range(9):
         if y == 3 or y == 6:
-            print '------+-------+-------'
+            print('------+-------+-------')
         for x in range(9):
             if x == 3 or x == 6:
-                print '|',
+                print('|', end=' ')
             val = table[y, x]
             if val == 0:
-                print '.',
+                print('.', end=' ')
             else:
-                print val,
-        print ''
+                print(val, end=' ')
+        print('')
 
 
 def main():

@@ -9,7 +9,7 @@ import sudokusolver
 def main():
     parser = argparse.ArgumentParser(description='Genereate sudoku puzzle')
     parser.add_argument('-l', '--level', dest='level', type=int, default=1, \
-                        help='Difficulty level (1-3)')
+                        help='Difficulty level (1-3), default is 1')
     parser_args = parser.parse_args()
 
     level = parser_args.level
@@ -25,12 +25,12 @@ def main():
     remove_attempt_threshold = 100
     remove_attempt = 0
 
-    remove_order = range(9*9)
+    remove_order = np.arange(9*9, dtype=np.int)
     random.shuffle(remove_order)
     remove_order *= level
     for elem_num in remove_order:
         remove_x = elem_num % 9
-        remove_y = elem_num / 9
+        remove_y = elem_num // 9
         remove_val = solver.get_result()[remove_y, remove_x]
         if remove_val == 0:
             continue
