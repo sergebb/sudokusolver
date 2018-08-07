@@ -1,0 +1,3 @@
+*.sudoku
+*.pyc
+__pycache*
